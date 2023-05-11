@@ -5,7 +5,7 @@
 
 	let searchIt = () => {
 		if (url) {
-			goto(`/proxy/https://google.com/search?q=${url}`)
+			goto(`/proxy/go?https://google.com/search?q=${url}`)
 		} else {
 			alert("Please enter a URL");
 		}
