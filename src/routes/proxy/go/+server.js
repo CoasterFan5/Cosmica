@@ -6,7 +6,6 @@ export let GET = async ({url}) => {
 	let ourUrl = "/proxy/go?";
 	//url is the url that we are trying to proxy.
 	let newUrl = url.search.substring(1);
-	console.log(newUrl)
 
 	//get the domain from the proxy url 
 	let domain = "";
@@ -15,14 +14,14 @@ export let GET = async ({url}) => {
 		dmc = newUrl.length;
 	}
 	domain = newUrl.substring(0, dmc);
-	console.log(domain)
 
 	let relativeUrl = newUrl.substring(8 + domain.length);
 
 
 	let fetchrq = await fetch(newUrl);
-	let html = await fetchrq.text();
 	let reqType = fetchrq.headers.get("content-type");
+
+	let html;
 
 
 	//now we have the html, and things get a little tricky. We need to replace all the links with our own. 
@@ -30,14 +29,21 @@ export let GET = async ({url}) => {
 	//We also need to replace all the styles with our own.
 	//We also need to replace all the images with our own.
 	//you get it by now.
-
-	if(reqType.startsWith("text/html") == false){
+	console.log(reqType)
+	if(reqType.startsWith("text/html")){
+		html = await fetchrq.text()
 		return new Response(html, {
-			headers: {
-				'content-type': reqType,
-			}
+			headers: Object.fromEntries(fetchrq.headers.entries())
 		});
-	}
+	} else if(reqType.startsWith("image")) {
+		html = await fetchrq.blob()
+		console.log("image")
+		return new Response(html, {
+			headers: Object.fromEntries(fetchrq.headers.entries())
+		})
+	} else {
+		html = await fetchrq.text();
+	} 
 
 	let fixUrl = (url) => {
 		if (url.startsWith("/")) {
